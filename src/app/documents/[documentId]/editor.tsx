@@ -19,6 +19,8 @@ import Highlight from '@tiptap/extension-highlight'
 import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
 
+import { FontSizeExtension } from '@/extensions/font-size';
+import { LineHeightExtension } from '@/extensions/line-space';
 
 export const Editor = () => {
 
@@ -64,6 +66,8 @@ export const Editor = () => {
         TextAlign.configure({
             types: ["heading", "paragraph"]
         }),
+        FontSizeExtension,
+        LineHeightExtension,
     ],
 
     content: `
