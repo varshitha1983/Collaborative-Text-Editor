@@ -75,9 +75,7 @@ export const Editor = () => {
         LineHeightExtension,
     ],
 
-    content: `
-        Hellooo
-      `,
+    content: ``,
   
   })
 

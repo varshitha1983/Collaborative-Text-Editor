@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
     LucideIcon,
     Undo2Icon,
@@ -97,35 +97,28 @@ const LineSpaceButton  = () => {
 const FontSizeButton = () => {
     const { editor } = useEditorStore();
     
-    
+    const getCurrentFontSize = () => {
+        const size = editor?.getAttributes('textStyle').fontSize;
+        return size ? size.replace('px', '') : '16';
+    };
 
-    const [fontSize, setFontSize] = useState('16');
-    const [inputValue, setInputValue] = useState(fontSize);
+    const [displayValue, setDisplayValue] = useState(getCurrentFontSize());
     const [isEditing, setIsEditing] = useState(false);
 
-    // Update state when editor selection changes
+    // Update display value when editor selection changes
     useEffect(() => {
         if (!editor) return;
-        
-        // Get the current font size from editor selection
-            const getCurrentFontSize = () => {
-                return editor?.getAttributes('textStyle').fontSize 
-                    ? editor.getAttributes('textStyle').fontSize.replace('px', '')
-                    : '16';
-            };
 
         const update = () => {
-            const newSize = getCurrentFontSize();
-            setFontSize(newSize);
-            setInputValue(newSize);
+            setDisplayValue(getCurrentFontSize());
         };
-        
-        // Update immediately
+
+        // Initial update
         update();
-        
-        // Subscribe to selection changes
+
+        // Subscribe to changes
         editor.on('selectionUpdate', update);
-        
+
         return () => {
             editor.off('selectionUpdate', update);
         };
@@ -135,36 +128,36 @@ const FontSizeButton = () => {
         const size = parseInt(newSize);
         if (!isNaN(size) && size > 0) {
             editor?.chain().focus().setFontSize(`${size}px`).run();
-            setIsEditing(false);
+            setDisplayValue(size.toString()); // Immediately update display
         }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
+        setDisplayValue(e.target.value);
     };
 
     const handleInputBlur = () => {
-        updateFontSize(inputValue);
+        updateFontSize(displayValue);
+        setIsEditing(false);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            e.preventDefault();
-            updateFontSize(inputValue);
+            updateFontSize(displayValue);
             editor?.commands.focus();
         }
     };
 
     const increment = () => {
-        const newSize = parseInt(fontSize) + 1;
+        const current = parseInt(displayValue || getCurrentFontSize());
+        const newSize = current + 1;
         updateFontSize(newSize.toString());
     };
 
     const decrement = () => {
-        const newSize = parseInt(fontSize) - 1;
-        if (newSize > 0) {
-            updateFontSize(newSize.toString());
-        }
+        const current = parseInt(displayValue || getCurrentFontSize());
+        const newSize = Math.max(1, current - 1);
+        updateFontSize(newSize.toString());
     };
 
     return (
@@ -175,10 +168,11 @@ const FontSizeButton = () => {
             >
                 <MinusIcon className="size-4" />
             </button>
+            
             {isEditing ? (
                 <input 
                     type="text"
-                    value={inputValue}
+                    value={displayValue}
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     onKeyDown={handleKeyDown}
@@ -188,15 +182,13 @@ const FontSizeButton = () => {
                 />
             ) : (
                 <button
-                    onClick={() => {
-                        setIsEditing(true);
-                        setInputValue(fontSize);
-                    }}
+                    onClick={() => setIsEditing(true)}
                     className="h-7 w-10 text-sm text-center border border-neutral-400 rounded-sm bg-transparent cursor-text"
                 >
-                    {fontSize}
+                    {displayValue}
                 </button>
             )}
+            
             <button
                 onClick={increment}
                 className="h-7 w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80"
