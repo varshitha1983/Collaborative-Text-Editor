@@ -22,6 +22,7 @@ export async function getUsers() {
         id: user.id,
         name: user.fullName ?? user.primaryEmailAddress?.emailAddress ?? "Anonymous",
         avatar: user.imageUrl,
+        color: "",
     }));
 
     // Add current user if not already in the list
@@ -31,6 +32,7 @@ export async function getUsers() {
             id: currentUser.id,
             name: currentUser.fullName ?? currentUser.primaryEmailAddress?.emailAddress ?? "Anonymous",
             avatar: currentUser.imageUrl,
+            color: "",
         });
     }
 

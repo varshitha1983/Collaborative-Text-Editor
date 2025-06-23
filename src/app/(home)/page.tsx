@@ -8,7 +8,7 @@ import { DocumentsTable } from "./documents-table";
 import { useSearchParam } from "@/hooks/use-search-param";
 
 
-export const Home = () => {
+const Home = () => {
   const [search] = useSearchParam();
 
   const {
